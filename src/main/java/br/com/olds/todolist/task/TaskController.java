@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.olds.todolist.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -61,6 +63,18 @@ public class TaskController {
         taskModel.setId(id);
 
         var updatedTask = this.taskRepository.save(taskModel);
+
+        return ResponseEntity.status(HttpStatus.OK).body(updatedTask);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Object> patch(@RequestBody TaskModel taskModel, @PathVariable UUID id,
+            HttpServletRequest request) {
+        var task = this.taskRepository.findById(id).orElse(null);
+
+        Utils.copyNonNullProperties(taskModel, task);
+
+        var updatedTask = this.taskRepository.save(task);
 
         return ResponseEntity.status(HttpStatus.OK).body(updatedTask);
     }
