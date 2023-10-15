@@ -72,6 +72,18 @@ public class TaskController {
             HttpServletRequest request) {
         var task = this.taskRepository.findById(id).orElse(null);
 
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Tarefa não encontrada");
+        }
+
+        UUID userId = (UUID) request.getAttribute("idUser");
+
+        if (!task.getIdUser().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Usuário não temr permissão para alterar a tarefa");
+        }
+
         Utils.copyNonNullProperties(taskModel, task);
 
         var updatedTask = this.taskRepository.save(task);
